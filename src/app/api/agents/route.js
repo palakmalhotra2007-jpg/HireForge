@@ -7,6 +7,8 @@ import {
   SKEPTIC_AGENT_PROMPT
 } from "@/lib/prompts";
 
+export const maxDuration = 60;
+
 export async function POST(request) {
   try {
     const { persona, profile, resume, transcript, jobDescription } = await request.json();
@@ -67,7 +69,7 @@ Please evaluate the candidate according to your Persona rules.
 
     return NextResponse.json({ success: true, data: opinion, persona });
   } catch (error) {
-    console.error(`Agent (${error.persona}) error:`, error);
+    console.error(`Agent (${persona}) error:`, error);
     return NextResponse.json(
       { success: false, error: "Failed to generate agent opinion." },
       { status: 500 }

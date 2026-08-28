@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { callGemini } from "@/lib/gemini";
 import { FINAL_DECISION_PROMPT } from "@/lib/prompts";
 
+export const maxDuration = 60;
+
 export async function POST(request) {
   try {
     const { profile, jobDescription, opinions, debateResult } = await request.json();

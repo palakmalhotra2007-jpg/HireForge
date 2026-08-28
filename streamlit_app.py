@@ -6,7 +6,12 @@ import requests
 import streamlit as st
 
 
-API_BASE_URL = os.getenv("INTERVIEW_PANEL_API_URL", "http://localhost:3000").rstrip("/")
+def get_api_base_url() -> str:
+    if "api_base_url" in st.session_state:
+        return st.session_state["api_base_url"]
+    return os.getenv("INTERVIEW_PANEL_API_URL", "http://localhost:3000").rstrip("/")
+
+
 FILE_KEYS = {
     "job_description": "Job description",
     "candidate_a_resume": "Candidate A resume",
@@ -25,7 +30,8 @@ def api_error(response: requests.Response, fallback: str) -> str:
 
 
 def post_json(path: str, payload: dict[str, Any], timeout: int = 90) -> dict[str, Any]:
-    response = requests.post(f"{API_BASE_URL}{path}", json=payload, timeout=timeout)
+    api_url = get_api_base_url()
+    response = requests.post(f"{api_url}{path}", json=payload, timeout=timeout)
     if not response.ok:
         raise RuntimeError(api_error(response, f"Request failed: {path}"))
     data = response.json()
@@ -39,7 +45,8 @@ def extract_documents(files: dict[str, Any]) -> dict[str, Any]:
         key: (file.name, file.getvalue(), "application/pdf")
         for key, file in files.items()
     }
-    response = requests.post(f"{API_BASE_URL}/api/extract", files=multipart, timeout=90)
+    api_url = get_api_base_url()
+    response = requests.post(f"{api_url}/api/extract", files=multipart, timeout=90)
     if not response.ok:
         raise RuntimeError(api_error(response, "Document extraction failed."))
     data = response.json()
@@ -140,10 +147,33 @@ def main() -> None:
     st.title("AI Interview Panel Simulator")
     st.caption("Evidence intake → independent panel → structured debate → one-seat decision")
 
+    # Initialize API base URL in session state if not already set
+    if "api_base_url" not in st.session_state:
+        st.session_state["api_base_url"] = os.getenv("INTERVIEW_PANEL_API_URL", "http://localhost:3000").rstrip("/")
+
     with st.sidebar:
         st.header("Evaluation setup")
         st.info("The Streamlit interface reuses the existing Next.js API and keeps all four evaluators independent.")
-        st.caption(f"API: {API_BASE_URL}")
+        
+        # User-editable backend URL
+        api_url = st.text_input(
+            "Next.js API URL",
+            value=st.session_state["api_base_url"],
+            help="Enter the URL of the running Next.js backend (e.g. http://localhost:3000 or https://your-app.vercel.app)"
+        )
+        st.session_state["api_base_url"] = api_url.rstrip("/")
+
+        # Test Connection button
+        if st.button("Test Connection", use_container_width=True):
+            try:
+                # Perform a health check GET request to the base URL
+                resp = requests.get(st.session_state["api_base_url"], timeout=5)
+                if resp.status_code == 200:
+                    st.success("Connected successfully!")
+                else:
+                    st.warning(f"Server responded with status {resp.status_code}")
+            except Exception as e:
+                st.error(f"Could not connect: {str(e)}")
 
     uploaded = {}
     for key, label in FILE_KEYS.items():

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { PDFParse } from "pdf-parse";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const workerPath = path.join(process.cwd(), "node_modules", "pdfjs-dist", "legacy", "build", "pdf.worker.mjs");
 PDFParse.setWorker(pathToFileURL(workerPath).href);
