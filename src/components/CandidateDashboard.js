@@ -34,10 +34,14 @@ export default function CandidateDashboard({ name, data }) {
         </div>
       </div>
 
-      <div className="flex gap-4 mb-6" style={{ borderBottom: "1px solid var(--border-color)", paddingBottom: "0.5rem" }}>
+      <div role="tablist" aria-label={`${name} analysis views`} className="flex gap-4 mb-6" style={{ borderBottom: "1px solid var(--border-color)", paddingBottom: "0.5rem" }}>
           {["overview", "debate", "panel", "evidence", "profile"].map(tab => (
           <button 
             key={tab}
+            id={`tab-${name.replace(/\s+/g, '-').toLowerCase()}-${tab}`}
+            role="tab"
+            aria-selected={activeTab === tab}
+            aria-controls={`panel-${name.replace(/\s+/g, '-').toLowerCase()}-${tab}`}
             className={`btn ${activeTab === tab ? "text-primary font-bold" : "text-muted"}`}
             style={{ padding: "0.5rem", background: "transparent" }}
             onClick={() => setActiveTab(tab)}
@@ -48,7 +52,12 @@ export default function CandidateDashboard({ name, data }) {
       </div>
 
       {activeTab === "overview" && (
-        <div className="grid grid-cols-2 gap-8">
+        <div 
+          role="tabpanel" 
+          id={`panel-${name.replace(/\s+/g, '-').toLowerCase()}-overview`} 
+          aria-labelledby={`tab-${name.replace(/\s+/g, '-').toLowerCase()}-overview`} 
+          className="grid grid-cols-2 gap-8"
+        >
           <div className="flex flex-col gap-4">
             <div className="glass-panel" style={{ padding: "1.5rem" }}>
               <h3 className="text-lg text-success mb-2">Strengths</h3>
@@ -97,7 +106,12 @@ export default function CandidateDashboard({ name, data }) {
       )}
 
       {activeTab === "profile" && (
-        <div className="flex flex-col gap-6">
+        <div 
+          role="tabpanel" 
+          id={`panel-${name.replace(/\s+/g, '-').toLowerCase()}-profile`} 
+          aria-labelledby={`tab-${name.replace(/\s+/g, '-').toLowerCase()}-profile`} 
+          className="flex flex-col gap-6"
+        >
           <div className="glass-panel" style={{ padding: "1.5rem" }}>
             <h3 className="text-lg mb-4">Basic Info</h3>
             <p><strong>Role:</strong> {profile?.basic_info?.current_role}</p>
@@ -116,7 +130,11 @@ export default function CandidateDashboard({ name, data }) {
       )}
 
       {activeTab === "panel" && (
-        <div>
+        <div 
+          role="tabpanel" 
+          id={`panel-${name.replace(/\s+/g, '-').toLowerCase()}-panel`} 
+          aria-labelledby={`tab-${name.replace(/\s+/g, '-').toLowerCase()}-panel`}
+        >
           <h3 className="text-lg mb-4">Independent Opinions (Before Debate)</h3>
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(opinions).map(([persona, op]) => (
@@ -136,7 +154,12 @@ export default function CandidateDashboard({ name, data }) {
       )}
 
       {activeTab === "debate" && (
-        <div className="flex flex-col gap-6">
+        <div 
+          role="tabpanel" 
+          id={`panel-${name.replace(/\s+/g, '-').toLowerCase()}-debate`} 
+          aria-labelledby={`tab-${name.replace(/\s+/g, '-').toLowerCase()}-debate`} 
+          className="flex flex-col gap-6"
+        >
           {debateResult?.issue_resolutions?.length > 0 && (
             <div className="glass-panel" style={{ padding: "1.5rem" }}>
               <h3 className="text-lg mb-4">Decision-critical issues</h3>
@@ -194,7 +217,13 @@ export default function CandidateDashboard({ name, data }) {
       )}
 
       {activeTab === "evidence" && (
-        <EvidenceExplorer data={data} />
+        <div 
+          role="tabpanel" 
+          id={`panel-${name.replace(/\s+/g, '-').toLowerCase()}-evidence`} 
+          aria-labelledby={`tab-${name.replace(/\s+/g, '-').toLowerCase()}-evidence`}
+        >
+          <EvidenceExplorer data={data} />
+        </div>
       )}
     </div>
   );

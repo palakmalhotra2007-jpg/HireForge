@@ -11,14 +11,14 @@ function FilePicker({ id, label, description, file, featured = false, onChange }
           <span className="file-picker-description">{file ? file.name : description}</span>
         </span>
         <span className="file-picker-action">{file ? "Replace" : "Choose PDF"}</span>
+        <input
+          id={id}
+          type="file"
+          accept=".pdf,application/pdf"
+          className="file-input"
+          onChange={onChange}
+        />
       </label>
-      <input
-        id={id}
-        type="file"
-        accept=".pdf,application/pdf"
-        className="file-input"
-        onChange={onChange}
-      />
     </div>
   );
 }

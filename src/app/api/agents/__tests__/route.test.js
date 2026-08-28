@@ -1,0 +1,70 @@
+import { POST } from '../route';
+import { callGemini } from '@/lib/gemini';
+
+jest.mock('@/lib/gemini', () => ({
+  callGemini: jest.fn()
+}));
+
+describe('POST /api/agents', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return 400 if required fields are missing', async () => {
+    const request = new Request('http://localhost/api/agents', {
+      method: 'POST',
+      body: JSON.stringify({
+        persona: 'technical'
+        // other fields missing
+      })
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.success).toBe(false);
+    expect(data.error).toContain('Missing required inputs');
+  });
+
+  it('should return 400 if invalid persona is specified', async () => {
+    const request = new Request('http://localhost/api/agents', {
+      method: 'POST',
+      body: JSON.stringify({
+        persona: 'invalid-persona',
+        profile: {},
+        resume: 'test resume',
+        transcript: 'test transcript',
+        jobDescription: 'test jd'
+      })
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.success).toBe(false);
+    expect(data.error).toContain('Invalid persona');
+  });
+
+  it('should return agent opinion on success', async () => {
+    const mockOpinion = { score: 80, reasoning: 'Strong candidate' };
+    callGemini.mockResolvedValueOnce(mockOpinion);
+
+    const request = new Request('http://localhost/api/agents', {
+      method: 'POST',
+      body: JSON.stringify({
+        persona: 'technical',
+        profile: {},
+        resume: 'test resume',
+        transcript: 'test transcript',
+        jobDescription: 'test jd'
+      })
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.success).toBe(true);
+    expect(data.data).toEqual(mockOpinion);
+    expect(data.persona).toBe('technical');
+  });
+});
