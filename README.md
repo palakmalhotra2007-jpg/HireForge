@@ -16,6 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Streamlit interface
+
+The same evaluation API can also be used through the Streamlit interface. Start Next.js first, then run:
+
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+The Streamlit app opens at [http://localhost:8501](http://localhost:8501). Set `INTERVIEW_PANEL_API_URL` when the Next.js API is hosted at a different URL.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
