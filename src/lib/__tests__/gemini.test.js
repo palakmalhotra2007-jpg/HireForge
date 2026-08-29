@@ -47,4 +47,18 @@ describe('callGemini', () => {
 
     await expect(callGemini(systemPrompt, promptText)).rejects.toThrow('Invalid JSON returned from model');
   });
+
+  it('should resolve function-backed Gemini text responses before parsing JSON', async () => {
+    const systemPrompt = 'System instruction';
+    const promptText = 'function response';
+
+    const { GoogleGenAI } = jest.requireMock('@google/genai');
+    const mockGenerateContent = GoogleGenAI.mock.results[0].value.models.generateContent;
+    mockGenerateContent.mockResolvedValueOnce({
+      text: () => Promise.resolve(JSON.stringify({ result: 'success', fromFunction: true }))
+    });
+
+    const result = await callGemini(systemPrompt, promptText);
+    expect(result).toEqual({ result: 'success', fromFunction: true });
+  });
 });

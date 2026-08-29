@@ -5,6 +5,7 @@ import UploadScreen from "@/components/UploadScreen";
 import AnalysisProcess from "@/components/AnalysisProcess";
 import CandidateDashboard from "@/components/CandidateDashboard";
 import ComparisonView from "@/components/ComparisonView";
+import { AGENT_PERSONAS } from "@/lib/agent-config";
 
 export default function Home() {
   const [pipelineState, setPipelineState] = useState("upload"); // upload, processing, results
@@ -99,12 +100,11 @@ export default function Home() {
 
     // Run Agents Independently in parallel
     setCurrentStep(`[${name}] Running Independent Agents...`);
-    const personas = ["technical", "hr", "manager", "skeptic"];
-    const agentPromises = personas.map(p => 
-      timedFetch(`${name} ${p} agent`, "/api/agents", {
+    const agentPromises = AGENT_PERSONAS.map(persona =>
+      timedFetch(`${name} ${persona} agent`, "/api/agents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ persona: p, profile, resume, transcript, jobDescription: jd })
+        body: JSON.stringify({ persona, profile, resume, transcript, jobDescription: jd })
       }).then(res => res.json())
     );
 
@@ -160,9 +160,13 @@ export default function Home() {
 
   return (
     <div className="container">
-      <header className="glass-panel" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
-        <h1 className="text-2xl text-primary">AI Interview Panel Simulator</h1>
+      <header className="glass-panel app-header" style={{ marginBottom: "2rem" }}>
+        <div>
+          <p className="app-header-mark">Evidence-led hiring workspace</p>
+          <h1 className="text-2xl text-primary">AI Interview Panel Simulator</h1>
+        </div>
         <p className="text-muted">Multi-Agent Candidate Evaluation System</p>
+        <span className="app-header-status">4 independent evaluators</span>
       </header>
 
       {pipelineState === "upload" && <UploadScreen onStart={runPipeline} />}

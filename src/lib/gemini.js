@@ -30,7 +30,8 @@ export async function callGemini(systemPrompt, promptText) {
       },
     });
 
-    const text = typeof response.text === "function" ? response.text() : response.text;
+    const resolvedText = typeof response.text === "function" ? await response.text() : response.text;
+    const text = typeof resolvedText === "string" ? resolvedText : resolvedText ? String(resolvedText) : "";
     if (!text) {
       throw new Error("Empty response from Gemini API");
     }

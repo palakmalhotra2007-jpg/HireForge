@@ -2,9 +2,19 @@
 import { useState } from "react";
 
 function FilePicker({ id, label, description, file, featured = false, onChange }) {
+  const handleLabelClick = (event) => {
+    if (event.target instanceof HTMLInputElement) return;
+    const input = document.getElementById(id);
+    if (input) input.click();
+  };
+
   return (
     <div className={`file-field${featured ? " file-field-featured" : ""}`}>
-      <label htmlFor={id} className={`file-picker${file ? " file-picker-selected" : ""}`}>
+      <label
+        htmlFor={id}
+        className={`file-picker${file ? " file-picker-selected" : ""}`}
+        onClick={handleLabelClick}
+      >
         <span className="file-picker-icon" aria-hidden="true" />
         <span className="file-picker-copy">
           <span className="file-picker-label">{label}</span>
@@ -33,7 +43,9 @@ export default function UploadScreen({ onStart }) {
   });
 
   const handleFileChange = (e, key) => {
-    setFiles({ ...files, [key]: e.target.files[0] });
+    const nextFile = e.target.files?.[0] || null;
+    setFiles(prev => ({ ...prev, [key]: nextFile }));
+    e.target.value = "";
   };
 
   const isReady = Object.values(files).every(f => f !== null);

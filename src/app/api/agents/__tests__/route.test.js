@@ -67,4 +67,31 @@ describe('POST /api/agents', () => {
     expect(data.data).toEqual(mockOpinion);
     expect(data.persona).toBe('technical');
   });
+
+  it('should use a distinct evaluator prompt for each persona', async () => {
+    callGemini.mockResolvedValue({ recommendation: 'INSUFFICIENT EVIDENCE' });
+
+    for (const persona of ['technical', 'hr', 'manager', 'skeptic']) {
+      const request = new Request('http://localhost/api/agents', {
+        method: 'POST',
+        body: JSON.stringify({
+          persona,
+          profile: {},
+          resume: 'test resume',
+          transcript: 'test transcript',
+          jobDescription: 'test jd'
+        })
+      });
+
+      const response = await POST(request);
+      expect(response.status).toBe(200);
+    }
+
+    const prompts = callGemini.mock.calls.map(([systemPrompt]) => systemPrompt);
+    expect(new Set(prompts).size).toBe(4);
+    expect(prompts[0]).toContain('Technical Evaluator');
+    expect(prompts[1]).toContain('People and Collaboration Evaluator');
+    expect(prompts[2]).toContain('Hiring Manager Evaluator');
+    expect(prompts[3]).toContain('Adversarial Evidence Auditor');
+  });
 });

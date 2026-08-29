@@ -1,11 +1,66 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import EvidenceExplorer from "./EvidenceExplorer";
+import { AGENT_CONFIG } from "@/lib/agent-config";
+import { buildDebateSpeechScript, getDebateVoiceProfile } from "@/lib/debate-voice";
 
 export default function CandidateDashboard({ name, data }) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const { profile, opinions, debateResult, finalDecision } = data;
+  const debateEntries = Array.isArray(debateResult?.debate) ? debateResult.debate : [];
+  const debateSpeechScript = useMemo(() => buildDebateSpeechScript(debateResult), [debateResult]);
+
+  const handleDebateSpeech = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    if (isSpeaking) {
+      setIsSpeaking(false);
+      return;
+    }
+
+    const voices = window.speechSynthesis.getVoices();
+
+    const speakNext = (index) => {
+      if (index >= debateEntries.length) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      const entry = debateEntries[index];
+      const speaker = entry?.speaker || "Panelist";
+      const profile = getDebateVoiceProfile(speaker);
+      const message = entry?.message ? entry.message.trim() : "";
+      const finalText = (entry?.issue ? `The issue is ${entry.issue}.` : "") +
+        (entry?.responding_to ? ` I am responding to ${entry.responding_to}.` : "") +
+        (message && !/^I\b|^My\b|^I am\b|^I believe\b|^I think\b|^I want\b|^I would\b|^I see\b/.test(message)
+          ? ` I believe ${message.charAt(0).toLowerCase()}${message.slice(1)}`
+          : ` ${message}`) +
+        (entry?.evidence ? ` My evidence is ${entry.evidence}.` : "");
+
+      const utterance = new SpeechSynthesisUtterance(finalText);
+      const selectedVoice = voices.find((voice) =>
+        voice.name.toLowerCase().includes(speaker.toLowerCase().split(" ")[0]) ||
+        voice.name.toLowerCase().includes("female") ||
+        voice.name.toLowerCase().includes("male")
+      ) || voices[0];
+
+      utterance.voice = selectedVoice;
+      utterance.pitch = profile.pitch;
+      utterance.rate = profile.rate;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => speakNext(index + 1);
+      utterance.onerror = () => speakNext(index + 1);
+      window.speechSynthesis.speak(utterance);
+    };
+
+    speakNext(0);
+  };
 
   const renderBadge = (recommendation) => {
     if (!recommendation) return null;
@@ -34,7 +89,7 @@ export default function CandidateDashboard({ name, data }) {
         </div>
       </div>
 
-      <div role="tablist" aria-label={`${name} analysis views`} className="flex gap-4 mb-6" style={{ borderBottom: "1px solid var(--border-color)", paddingBottom: "0.5rem" }}>
+      <div role="tablist" aria-label={`${name} analysis views`} className="analysis-tabs flex gap-4 mb-6" style={{ borderBottom: "1px solid var(--border-color)", paddingBottom: "0.5rem" }}>
           {["overview", "debate", "panel", "evidence", "profile"].map(tab => (
           <button 
             key={tab}
@@ -135,20 +190,32 @@ export default function CandidateDashboard({ name, data }) {
           id={`panel-${name.replace(/\s+/g, '-').toLowerCase()}-panel`} 
           aria-labelledby={`tab-${name.replace(/\s+/g, '-').toLowerCase()}-panel`}
         >
-          <h3 className="text-lg mb-4">Independent Opinions (Before Debate)</h3>
+          <div className="section-heading">
+            <div>
+              <p className="analysis-eyebrow">Before debate</p>
+              <h3 className="text-lg">Independent evaluator opinions</h3>
+            </div>
+            <span className="text-sm text-muted">4 lenses · 4 recommendations</span>
+          </div>
           <div className="grid grid-cols-2 gap-4">
-            {Object.entries(opinions).map(([persona, op]) => (
+            {AGENT_CONFIG.map(({ key: persona, label, remit }) => {
+              const op = opinions?.[persona];
+              if (!op) return null;
+
+              return (
               <div key={persona} className="glass-panel" style={{ padding: "1rem" }}>
                 <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-bold capitalize">{persona} Agent</h4>
+                  <h4 className="font-bold">{label}</h4>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted">{op.confidence}%</span>
                     {renderBadge(op.recommendation)}
                   </div>
                 </div>
+                <p className="text-xs text-primary mb-2">{remit}</p>
                 <p className="text-sm text-muted">{op.reasoning}</p>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -178,7 +245,18 @@ export default function CandidateDashboard({ name, data }) {
             </div>
           )}
           <div className="glass-panel" style={{ padding: "1.5rem" }}>
-            <h3 className="text-lg mb-4">Debate transcript</h3>
+            <div className="section-heading" style={{ marginBottom: "1rem" }}>
+              <h3 className="text-lg mb-0">Debate transcript</h3>
+              <button
+                type="button"
+                className="btn btn-primary debate-voice-button"
+                onClick={handleDebateSpeech}
+                disabled={!debateSpeechScript || debateSpeechScript === "The debate transcript is empty."}
+                aria-label={isSpeaking ? "Stop debate audio" : "Play debate audio"}
+              >
+                {isSpeaking ? "Stop voice" : "Play voice"}
+              </button>
+            </div>
             <div className="flex flex-col gap-4">
               {debateResult?.debate?.map((msg, i) => (
                 <div key={i} style={{ borderLeft: "3px solid var(--primary)", paddingLeft: "1rem" }}>

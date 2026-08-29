@@ -7,6 +7,13 @@ import {
   SKEPTIC_AGENT_PROMPT
 } from "@/lib/prompts";
 
+const AGENT_PROMPTS = {
+  technical: TECHNICAL_AGENT_PROMPT,
+  hr: HR_AGENT_PROMPT,
+  manager: MANAGER_AGENT_PROMPT,
+  skeptic: SKEPTIC_AGENT_PROMPT
+};
+
 export const maxDuration = 60;
 
 export async function POST(request) {
@@ -20,25 +27,12 @@ export async function POST(request) {
       );
     }
 
-    let systemPrompt = "";
-    switch (persona) {
-      case "technical":
-        systemPrompt = TECHNICAL_AGENT_PROMPT;
-        break;
-      case "hr":
-        systemPrompt = HR_AGENT_PROMPT;
-        break;
-      case "manager":
-        systemPrompt = MANAGER_AGENT_PROMPT;
-        break;
-      case "skeptic":
-        systemPrompt = SKEPTIC_AGENT_PROMPT;
-        break;
-      default:
-        return NextResponse.json(
-          { success: false, error: "Invalid persona specified." },
-          { status: 400 }
-        );
+    const systemPrompt = AGENT_PROMPTS[persona];
+    if (!systemPrompt) {
+      return NextResponse.json(
+        { success: false, error: "Invalid persona specified." },
+        { status: 400 }
+      );
     }
 
     const promptText = `
