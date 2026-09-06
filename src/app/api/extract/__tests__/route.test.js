@@ -18,7 +18,7 @@ jest.mock('pdf-parse', () => {
 });
 
 describe('POST /api/extract', () => {
-  it('should successfully handle missing or string fields in form data', async () => {
+  it('should reject missing or string fields in form data', async () => {
     const formData = new FormData();
     formData.append('job_description', 'not-a-file'); // should be ignored
 
@@ -28,10 +28,36 @@ describe('POST /api/extract', () => {
     });
 
     const response = await POST(request);
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(400);
     const data = await response.json();
-    expect(data.success).toBe(true);
-    expect(data.data.job_description).toBeNull();
+    expect(data.success).toBe(false);
+    expect(data.error).toContain('Missing PDF files');
+  });
+
+  it('should reject empty PDF files', async () => {
+    const formData = new FormData();
+    const emptyFile = new Blob([], { type: 'application/pdf' });
+
+    for (const key of [
+      'job_description',
+      'candidate_a_resume',
+      'candidate_a_transcript',
+      'candidate_b_resume',
+      'candidate_b_transcript'
+    ]) {
+      formData.append(key, emptyFile, `${key}.pdf`);
+    }
+
+    const request = new Request('http://localhost/api/extract', {
+      method: 'POST',
+      body: formData
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.success).toBe(false);
+    expect(data.error).toContain('empty');
   });
 
   it('should parse PDF files and return extracted text', async () => {
