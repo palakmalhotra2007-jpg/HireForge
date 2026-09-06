@@ -68,6 +68,29 @@ describe('POST /api/agents', () => {
     expect(data.persona).toBe('technical');
   });
 
+  it('should return JSON when the evaluator fails', async () => {
+    callGemini.mockRejectedValueOnce(new Error('Gemini request failed'));
+
+    const request = new Request('http://localhost/api/agents', {
+      method: 'POST',
+      body: JSON.stringify({
+        persona: 'technical',
+        profile: {},
+        resume: 'test resume',
+        transcript: 'test transcript',
+        jobDescription: 'test jd'
+      })
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(500);
+    const data = await response.json();
+    expect(data).toEqual({
+      success: false,
+      error: 'Failed to generate agent opinion.'
+    });
+  });
+
   it('should use a distinct evaluator prompt for each persona', async () => {
     callGemini.mockResolvedValue({ recommendation: 'INSUFFICIENT EVIDENCE' });
 

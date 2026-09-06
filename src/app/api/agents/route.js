@@ -17,8 +17,12 @@ const AGENT_PROMPTS = {
 export const maxDuration = 60;
 
 export async function POST(request) {
+  let persona;
+
   try {
-    const { persona, profile, resume, transcript, jobDescription } = await request.json();
+    const requestBody = await request.json();
+    ({ persona } = requestBody);
+    const { profile, resume, transcript, jobDescription } = requestBody;
 
     if (!persona || !profile || !resume || !transcript || !jobDescription) {
       return NextResponse.json(

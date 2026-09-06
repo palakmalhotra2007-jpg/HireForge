@@ -7,6 +7,20 @@ import CandidateDashboard from "@/components/CandidateDashboard";
 import ComparisonView from "@/components/ComparisonView";
 import { AGENT_PERSONAS } from "@/lib/agent-config";
 
+async function readJsonResponse(response, label) {
+  const responseText = await response.text();
+
+  if (!responseText.trim()) {
+    throw new Error(`${label} returned an empty response (HTTP ${response.status}).`);
+  }
+
+  try {
+    return JSON.parse(responseText);
+  } catch {
+    throw new Error(`${label} returned invalid JSON (HTTP ${response.status}).`);
+  }
+}
+
 export default function Home() {
   const [pipelineState, setPipelineState] = useState("upload"); // upload, processing, results
   const [files, setFiles] = useState(null);
@@ -45,7 +59,7 @@ export default function Home() {
       });
 
       const extractRes = await timedFetch("Document extraction", "/api/extract", { method: "POST", body: formData });
-      const extractData = await extractRes.json();
+      const extractData = await readJsonResponse(extractRes, "Document extraction");
       if (!extractRes.ok || !extractData.success) {
         throw new Error(extractData.error || "Extraction failed");
       }
@@ -91,7 +105,7 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ jobDescription: jd, resume, transcript })
     });
-    const profileData = await profileRes.json();
+    const profileData = await readJsonResponse(profileRes, `${name} profile`);
     if (!profileRes.ok || !profileData.success || !profileData.data) {
       throw new Error(profileData.error || `${name} profile generation failed`);
     }
@@ -105,7 +119,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ persona, profile, resume, transcript, jobDescription: jd })
-      }).then(res => res.json())
+      }).then(res => readJsonResponse(res, `${name} ${persona} agent`))
     );
 
     const agentResults = await Promise.all(agentPromises);
@@ -127,7 +141,7 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ profile, jobDescription: jd, opinions })
     });
-    const debateData = await debateRes.json();
+    const debateData = await readJsonResponse(debateRes, `${name} debate`);
     if (!debateRes.ok || !debateData.success || !debateData.data) {
       throw new Error(debateData.error || `${name} debate failed`);
     }
@@ -144,7 +158,7 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ profile, jobDescription: jd, opinions, debateResult })
     });
-    const finalData = await finalRes.json();
+    const finalData = await readJsonResponse(finalRes, `${name} final decision`);
     if (!finalRes.ok || !finalData.success || !finalData.data) {
       throw new Error(finalData.error || `${name} final decision failed`);
     }
