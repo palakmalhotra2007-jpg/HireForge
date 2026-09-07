@@ -267,7 +267,6 @@ export default function Home() {
     <div className="container hireforge-shell">
       <header className="app-header" style={{ marginBottom: "1rem" }}>
         <div className="app-header-brand">
-          <div className="app-header-mark">HF</div>
           <div>
             <h1 className="text-2xl text-primary">HireForge</h1>
             <p className="app-header-subtitle">Interview intelligence platform</p>
