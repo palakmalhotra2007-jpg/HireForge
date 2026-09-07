@@ -179,14 +179,14 @@ export default function UploadScreen({ onStart, onInstantSimulation }) {
     <div className="setup-page animate-fade-in">
       <section className="setup-stepper" aria-label="Evaluation setup progress">
         {[
-          ["01", "Role specification", true],
-          ["02", "Resume parsing", true],
-          ["03", "Interview transcript", false],
-          ["04", "Evaluator panel", false],
-        ].map(([number, label, complete], index) => (
+          ["01", "Role specification"],
+          ["02", "Candidate records"],
+          ["03", "Evaluator panel"],
+          ["04", "Final deliberation"],
+        ].map(([number, label], index) => (
           <div className="setup-step" key={number}>
-            <div className={`setup-step-marker${complete ? " setup-step-complete" : index === 2 ? " setup-step-active" : ""}`}>
-              {complete ? "✓" : number}
+            <div className={`setup-step-marker${index === 0 ? " setup-step-active" : ""}`}>
+              {number}
             </div>
             <div>
               <span className="setup-step-number">Step {number}</span>
@@ -199,10 +199,10 @@ export default function UploadScreen({ onStart, onInstantSimulation }) {
 
       <section className="setup-intro">
         <div className="setup-intro-meta">
-          <span>Pipeline setup · sequence 03/04</span>
+          <span>New evaluation · sequence 01/04</span>
           <span className="setup-id">ID: EVAL-89241</span>
         </div>
-        <h2>Step 3 of 4: Ingest candidate evidence</h2>
+        <h2>Step 1 of 4: Set up candidate evaluation</h2>
         <p>Upload the role specification and candidate records. HireForge will reconcile the evidence before dispatching the evaluator panel.</p>
       </section>
 
