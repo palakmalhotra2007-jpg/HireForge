@@ -25,6 +25,16 @@
   padding: 0;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent text overflow globally */
+body, div, p, span, li, td, th, h1, h2, h3, h4, h5, h6 {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 body {
   font-family: 'DM Sans', sans-serif;
   background-color: var(--bg-color);
@@ -79,9 +89,17 @@ button {
 
 /* Layout Utilities */
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .container {
+    max-width: 100%;
+    padding: 1.5rem;
+  }
 }
 
 .app-header {
@@ -125,6 +143,7 @@ button {
 .justify-center { justify-content: center; }
 .gap-1 { gap: 0.25rem; }
 .gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
 .gap-4 { gap: 1rem; }
 .gap-6 { gap: 1.5rem; }
 .gap-8 { gap: 2rem; }
@@ -360,6 +379,7 @@ button {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 .comparison-heading.card-header {
   margin-bottom: 1rem;
@@ -382,6 +402,7 @@ button {
 .comparison-winner strong {
   color: var(--success);
   font-size: 1.1rem;
+  word-wrap: break-word;
 }
 .comparison-verdict {
   background: rgba(16, 185, 129, 0.08);
@@ -390,6 +411,9 @@ button {
   color: var(--text-muted);
   margin-bottom: 1.5rem;
   padding: 0.85rem 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.5;
 }
 .comparison-verdict strong {
   color: var(--text-main);
@@ -397,10 +421,25 @@ button {
 .decision-criterion, .debate-resolution {
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 0.75rem;
+  padding: 0.875rem;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s;
 }
+
+.decision-criterion:hover, .debate-resolution:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .decision-criterion p, .debate-resolution p {
-  margin-top: 0.35rem;
+  margin-top: 0.5rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
+.decision-criterion strong {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .debate-resolution h4 {
   font-size: 0.95rem;
@@ -543,6 +582,12 @@ button {
   .grid-cols-4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .md\\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  .md\\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .comparison-heading {
     flex-direction: column;
   }
@@ -620,6 +665,14 @@ button {
     white-space: nowrap;
     flex-shrink: 0;
   }
+  .single-candidate-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .candidate-decision-box {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -640,6 +693,9 @@ button {
   .text-xl {
     font-size: 1.125rem;
   }
+  .text-lg {
+    font-size: 1rem;
+  }
   .single-candidate-header {
     flex-direction: column;
     align-items: flex-start !important;
@@ -652,6 +708,18 @@ button {
   }
   .standout-section .grid {
     grid-template-columns: 1fr !important;
+  }
+  .criterion-item {
+    padding: 0.75rem !important;
+  }
+  .criterion-item strong {
+    font-size: 0.813rem;
+  }
+  .single-candidate-panel {
+    padding: 1rem !important;
+  }
+  .glass-panel {
+    padding: 0.875rem;
   }
 }
 
@@ -930,16 +998,20 @@ textarea:focus-visible {
 /* Single Candidate Detailed View */
 .single-candidate-detailed-view .single-candidate-panel {
   background: linear-gradient(145deg, rgba(28, 43, 37, 0.5), rgba(16, 21, 19, 0.6));
+  padding: 2rem;
 }
 
 .single-candidate-header {
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .candidate-decision-box {
   background: rgba(115, 214, 178, 0.08);
   border: 1px solid rgba(115, 214, 178, 0.25);
+  padding: 1rem;
+  border-radius: 8px;
 }
 
 .metric-card {
@@ -947,6 +1019,8 @@ textarea:focus-visible {
   border: 1px solid var(--border-color);
   text-align: center;
   transition: all 0.2s;
+  padding: 1rem;
+  border-radius: 8px;
 }
 
 .metric-card:hover {
@@ -958,15 +1032,37 @@ textarea:focus-visible {
 .standout-section {
   border-top: 1px solid var(--border-color);
   padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.standout-section h4 {
+  margin-bottom: 1rem;
 }
 
 .criterion-item {
   background: rgba(255, 255, 255, 0.02);
   transition: all 0.2s;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 .criterion-item:hover {
   background: rgba(255, 255, 255, 0.05);
+}
+
+.criterion-item strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+  word-wrap: break-word;
+}
+
+.criterion-item p {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 .space-y-2 > * + * {
@@ -982,6 +1078,35 @@ textarea:focus-visible {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-wrap: break-word;
+}
+
+/* Better text wrapping for all content */
+.glass-panel p,
+.glass-panel li,
+.glass-panel span,
+.criterion-item,
+.standout-section li {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.standout-section ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+.standout-section li {
+  padding-left: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.glass-panel h5 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-main);
 }
 
 /* Responsive utility classes */
@@ -992,6 +1117,12 @@ textarea:focus-visible {
   .md\\:items-center {
     align-items: center;
   }
+  .md\\:items-start {
+    align-items: flex-start;
+  }
+  .md\\:justify-between {
+    justify-content: space-between;
+  }
   .md\\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1000,9 +1131,71 @@ textarea:focus-visible {
   }
 }
 
+.flex-1 {
+  flex: 1;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.min-w-\\[200px\\] {
+  min-width: 200px;
+}
+
 .single-candidate-assessment {
   background: rgba(115, 214, 178, 0.06);
   border-color: rgba(115, 214, 178, 0.3);
+}
+
+.border-l-4 {
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+
+.border-success {
+  border-color: var(--success);
+}
+
+.border-warning {
+  border-color: var(--warning);
+}
+
+.badge-warning {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
 }
 
 
