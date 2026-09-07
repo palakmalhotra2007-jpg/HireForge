@@ -3,7 +3,12 @@ import "./globals.css";
 export const metadata = {
   title: "HireForge AI Panel Simulator",
   description: "A multi-agent AI system for candidate evaluation with evidence-led hiring",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({ children }) {
@@ -13,7 +18,7 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
       <body>
-        <main style={{ padding: "2rem" }} className="responsive-main">
+        <main className="responsive-main">
           {children}
         </main>
       </body>
