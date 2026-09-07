@@ -309,7 +309,7 @@ export default function Home() {
                 className={`btn btn-sm ${selectedCandidateId === "comparison" ? "btn-primary font-bold" : "btn-outline text-muted"}`}
                 onClick={() => setSelectedCandidateId("comparison")}
               >
-                📊 Comparison & Rankings ({results.length})
+                📊 {results.length === 1 ? "Assessment" : `Comparison & Rankings (${results.length})`}
               </button>
               {results.map((c, i) => (
                 <button
@@ -323,7 +323,7 @@ export default function Home() {
               ))}
             </div>
             <span className="text-xs text-muted hidden sm:inline">
-              {results.length} Candidates Evaluated
+              {results.length} {results.length === 1 ? "Candidate" : "Candidates"} Evaluated
             </span>
           </div>
 
@@ -335,19 +335,21 @@ export default function Home() {
                 onSelectCandidate={(name) => setSelectedCandidateId(name)}
               />
               
-              <div className="all-candidates-list flex flex-col gap-8">
-                <div className="section-heading">
-                  <h3 className="text-xl font-bold text-primary">Detailed Candidate Dossiers</h3>
-                  <span className="text-xs text-muted">Scroll down or use top buttons to inspect individual evaluations</span>
+              {results.length > 1 && (
+                <div className="all-candidates-list flex flex-col gap-8">
+                  <div className="section-heading">
+                    <h3 className="text-xl font-bold text-primary">Detailed Candidate Dossiers</h3>
+                    <span className="text-xs text-muted">Scroll down or use top buttons to inspect individual evaluations</span>
+                  </div>
+                  {results.map((cand) => (
+                    <CandidateDashboard
+                      key={cand.id || cand.name}
+                      name={cand.name}
+                      data={cand}
+                    />
+                  ))}
                 </div>
-                {results.map((cand) => (
-                  <CandidateDashboard
-                    key={cand.id || cand.name}
-                    name={cand.name}
-                    data={cand}
-                  />
-                ))}
-              </div>
+              )}
             </div>
           ) : (
             selectedCandidate && (

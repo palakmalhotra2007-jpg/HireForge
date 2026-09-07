@@ -80,7 +80,7 @@ export default function UploadScreen({ onStart, onInstantSimulation }) {
   };
 
   const handleRemoveCandidate = (index) => {
-    if (candidates.length <= 2) return;
+    if (candidates.length <= 1) return;
     setCandidates(prev => prev.filter((_, i) => i !== index));
   };
 
@@ -151,7 +151,7 @@ export default function UploadScreen({ onStart, onInstantSimulation }) {
   const readyCandidatesCount = candidates.filter(
     c => (c.resumeFile || c.resumeText) && (c.transcriptFile || c.transcriptText)
   ).length;
-  const isAllReady = isJdReady && readyCandidatesCount >= 2 && readyCandidatesCount === candidates.length;
+  const isAllReady = isJdReady && readyCandidatesCount >= 1 && readyCandidatesCount === candidates.length;
 
   const handleStartEvaluation = (instant = false) => {
     const payload = {
@@ -182,7 +182,7 @@ export default function UploadScreen({ onStart, onInstantSimulation }) {
           <p className="upload-eyebrow">Evidence-Led Hiring Workspace</p>
           <h2 className="text-xl">Candidate Evaluation & Deliberation Panel</h2>
           <p className="text-muted">
-            Upload documents for 2 or more candidates (PDF, TXT, MD) or use preloaded sample data.
+            Upload documents for 1 or more candidates (PDF, TXT, MD) or use preloaded sample data.
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
@@ -257,7 +257,7 @@ export default function UploadScreen({ onStart, onInstantSimulation }) {
             </button>
           </div>
 
-          <div className={`grid gap-6 ${candidates.length >= 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+          <div className={`grid gap-6 ${candidates.length >= 3 ? "grid-cols-3" : candidates.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
             {candidates.map((cand, idx) => {
               const isCandReady = Boolean((cand.resumeFile || cand.resumeText) && (cand.transcriptFile || cand.transcriptText));
               return (
@@ -274,7 +274,7 @@ export default function UploadScreen({ onStart, onInstantSimulation }) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="candidate-upload-tag">Profile 0{idx + 1}</span>
-                      {candidates.length > 2 && (
+                      {candidates.length > 1 && (
                         <button
                           type="button"
                           className="btn-remove-candidate"

@@ -89,7 +89,7 @@ export default function CandidateDashboard({ name, data }) {
         </div>
       </div>
 
-      <div role="tablist" aria-label={`${name} analysis views`} className="analysis-tabs flex gap-4 mb-6" style={{ borderBottom: "1px solid var(--border-color)", paddingBottom: "0.5rem" }}>
+      <div role="tablist" aria-label={`${name} analysis views`} className="analysis-tabs flex gap-4 mb-6" style={{ borderBottom: "1px solid var(--border-color)", paddingBottom: "0.5rem", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           {["overview", "debate", "panel", "evidence", "profile"].map(tab => (
           <button 
             key={tab}
@@ -98,7 +98,7 @@ export default function CandidateDashboard({ name, data }) {
             aria-selected={activeTab === tab}
             aria-controls={`panel-${name.replace(/\s+/g, '-').toLowerCase()}-${tab}`}
             className={`btn ${activeTab === tab ? "text-primary font-bold" : "text-muted"}`}
-            style={{ padding: "0.5rem", background: "transparent" }}
+            style={{ padding: "0.5rem", background: "transparent", whiteSpace: "nowrap", flexShrink: 0 }}
             onClick={() => setActiveTab(tab)}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
