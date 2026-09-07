@@ -132,18 +132,18 @@ export default function ComparisonView({ candidates = [], candidateA, candidateB
 
             return (
               <div key={candidate.id || idx} className="glass-panel single-candidate-panel" style={{ padding: "1.5rem", maxWidth: "100%", overflow: "hidden" }}>
-                <div className="single-candidate-header flex flex-col md:flex-row justify-between items-start md:items-center gap-4" style={{ marginBottom: "1.5rem" }}>
-                  <div className="flex-1" style={{ minWidth: 0, width: "100%" }}>
-                    <h3 className="text-2xl font-bold mb-2" style={{ wordWrap: "break-word", overflowWrap: "break-word" }}>{candidate.name}</h3>
-                    <p className="text-sm text-muted mb-3" style={{ wordWrap: "break-word", overflowWrap: "break-word" }}>{candidate.profile?.basic_info?.current_role || "Candidate Profile"}</p>
-                    <div className="flex flex-wrap gap-2">
+                <div className="single-candidate-header" style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid var(--border-color)" }}>
+                  <div style={{ width: "100%" }}>
+                    <h3 className="text-2xl font-bold mb-2">{candidate.name}</h3>
+                    <p className="text-sm text-muted mb-3">{candidate.profile?.basic_info?.current_role || "Candidate Profile"}</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                       {candidate.profile?.skills?.slice(0, 5).map((skill, i) => (
                         <span key={i} className="badge badge-neutral text-xs">{skill}</span>
                       ))}
                     </div>
                   </div>
-                  <div className="candidate-decision-box glass-panel" style={{ padding: "1rem", minWidth: "180px", width: "100%", maxWidth: "220px" }}>
-                    <div className="text-center">
+                  <div className="candidate-decision-box glass-panel" style={{ padding: "1rem", width: "100%" }}>
+                    <div style={{ textAlign: "center" }}>
                       <div className="text-sm text-muted mb-2">Final Decision</div>
                       {renderBadge(candidate?.finalDecision?.final_recommendation)}
                       <div className="text-3xl font-bold text-primary mt-2">{candidate?.finalDecision?.final_confidence || 0}%</div>
@@ -153,20 +153,20 @@ export default function ComparisonView({ candidates = [], candidateA, candidateB
                 </div>
 
                 {/* Key Metrics Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" style={{ marginBottom: "1.5rem" }}>
-                  <div className="metric-card glass-panel" style={{ padding: "0.875rem" }}>
-                    <div className="text-xs text-muted mb-1">Must-Haves Met</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem", marginBottom: "1.5rem" }}>
+                  <div className="metric-card glass-panel" style={{ padding: "0.875rem", textAlign: "center" }}>
+                    <div className="text-xs text-muted mb-1">Must-Haves</div>
                     <div className="text-2xl font-bold text-primary">{getMustHavesMet(candidate)}</div>
                   </div>
-                  <div className="metric-card glass-panel" style={{ padding: "0.875rem" }}>
-                    <div className="text-xs text-muted mb-1">Evidence Items</div>
+                  <div className="metric-card glass-panel" style={{ padding: "0.875rem", textAlign: "center" }}>
+                    <div className="text-xs text-muted mb-1">Evidence</div>
                     <div className="text-2xl font-bold">{getEvidenceCount(candidate)}</div>
                   </div>
-                  <div className="metric-card glass-panel" style={{ padding: "0.875rem" }}>
+                  <div className="metric-card glass-panel" style={{ padding: "0.875rem", textAlign: "center" }}>
                     <div className="text-xs text-muted mb-1">Strengths</div>
                     <div className="text-2xl font-bold text-success">{strengthAreas.length}</div>
                   </div>
-                  <div className="metric-card glass-panel" style={{ padding: "0.875rem" }}>
+                  <div className="metric-card glass-panel" style={{ padding: "0.875rem", textAlign: "center" }}>
                     <div className="text-xs text-muted mb-1">Concerns</div>
                     <div className="text-2xl font-bold text-warning">{concernAreas.length}</div>
                   </div>
@@ -175,25 +175,25 @@ export default function ComparisonView({ candidates = [], candidateA, candidateB
                 {/* Standout Areas */}
                 <div className="standout-section mb-6">
                   <h4 className="text-lg font-bold mb-4 text-primary">🌟 Where This Candidate Stands Out</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="glass-panel border-l-4 border-success" style={{ padding: "1rem" }}>
                       <h5 className="font-bold text-success mb-3">Key Strengths</h5>
-                      <ul className="space-y-2" style={{ paddingLeft: 0, listStyle: "none" }}>
+                      <ul style={{ paddingLeft: 0, listStyle: "none" }}>
                         {strengthAreas.slice(0, 5).map((strength, i) => (
-                          <li key={i} className="text-sm flex items-start gap-2" style={{ lineHeight: "1.5" }}>
-                            <span className="text-success flex-shrink-0" style={{ marginTop: "2px" }}>✓</span>
-                            <span style={{ flex: 1, wordBreak: "break-word" }}>{strength}</span>
+                          <li key={i} className="text-sm mb-2" style={{ display: "flex", gap: "0.5rem", lineHeight: "1.5" }}>
+                            <span className="text-success" style={{ flexShrink: 0, marginTop: "2px" }}>✓</span>
+                            <span style={{ flex: 1 }}>{strength}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
                     <div className="glass-panel border-l-4 border-warning" style={{ padding: "1rem" }}>
                       <h5 className="font-bold text-warning mb-3">Areas of Concern</h5>
-                      <ul className="space-y-2" style={{ paddingLeft: 0, listStyle: "none" }}>
+                      <ul style={{ paddingLeft: 0, listStyle: "none" }}>
                         {concernAreas.length > 0 ? concernAreas.slice(0, 5).map((concern, i) => (
-                          <li key={i} className="text-sm flex items-start gap-2" style={{ lineHeight: "1.5" }}>
-                            <span className="text-warning flex-shrink-0" style={{ marginTop: "2px" }}>⚠</span>
-                            <span style={{ flex: 1, wordBreak: "break-word" }}>{concern}</span>
+                          <li key={i} className="text-sm mb-2" style={{ display: "flex", gap: "0.5rem", lineHeight: "1.5" }}>
+                            <span className="text-warning" style={{ flexShrink: 0, marginTop: "2px" }}>⚠</span>
+                            <span style={{ flex: 1 }}>{concern}</span>
                           </li>
                         )) : (
                           <li className="text-sm text-muted italic">No major concerns identified</li>
@@ -206,28 +206,31 @@ export default function ComparisonView({ candidates = [], candidateA, candidateB
                 {/* Criteria Breakdown */}
                 <div className="criteria-breakdown mb-6">
                   <h4 className="text-lg font-bold mb-3">Decision Criteria Assessment</h4>
-                  <div className="space-y-3">
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                     {criteria.map((criterion, i) => (
                       <div 
                         key={i} 
-                        className={`criterion-item glass-panel border-l-4 ${
+                        className={`glass-panel border-l-4 ${
                           criterion.assessment === "Meets" ? "border-success" : "border-warning"
                         }`}
                         style={{ padding: "0.875rem" }}
                       >
-                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 mb-2">
-                          <strong className="text-sm flex-1" style={{ wordBreak: "break-word" }}>
-                            {criterion.criterion}
-                          </strong>
-                          <span 
-                            className={`badge text-xs flex-shrink-0 ${
-                              criterion.assessment === "Meets" ? "badge-hire" : "badge-warning"
-                            }`}
-                          >
-                            {criterion.assessment}
-                          </span>
+                        <div style={{ marginBottom: "0.5rem" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                            <strong className="text-sm" style={{ flex: "1 1 auto" }}>
+                              {criterion.criterion}
+                            </strong>
+                            <span 
+                              className={`badge text-xs ${
+                                criterion.assessment === "Meets" ? "badge-hire" : "badge-warning"
+                              }`}
+                              style={{ flexShrink: 0 }}
+                            >
+                              {criterion.assessment}
+                            </span>
+                          </div>
                         </div>
-                        <p className="text-xs text-muted" style={{ lineHeight: "1.5", wordBreak: "break-word" }}>
+                        <p className="text-xs text-muted" style={{ lineHeight: "1.5" }}>
                           {criterion.debate_impact}
                         </p>
                       </div>

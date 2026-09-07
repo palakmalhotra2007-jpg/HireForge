@@ -721,6 +721,16 @@ button {
   .glass-panel {
     padding: 0.875rem;
   }
+  .card {
+    padding: 0.875rem !important;
+  }
+  .comparison-card {
+    padding: 0.875rem !important;
+  }
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
 }
 
 /* Badges */
