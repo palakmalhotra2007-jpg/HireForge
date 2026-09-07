@@ -264,44 +264,47 @@ export default function Home() {
   const selectedCandidate = results.find(c => c.id === selectedCandidateId || c.name === selectedCandidateId);
 
   return (
-    <div className="container">
-      <header className="glass-panel app-header" style={{ marginBottom: "2rem" }}>
-        <div>
-          <p className="app-header-mark">Evidence-led hiring workspace</p>
-          <h1 className="text-2xl text-primary">HireForge AI Panel Simulator</h1>
+    <div className="container hireforge-shell">
+      <header className="app-header" style={{ marginBottom: "1rem" }}>
+        <div className="app-header-brand">
+          <div className="app-header-mark">HF</div>
+          <div>
+            <h1 className="text-2xl text-primary">HireForge</h1>
+            <p className="app-header-subtitle">Interview intelligence platform</p>
+          </div>
         </div>
-        <p className="text-muted">Multi-Agent Deliberation & Evaluation System</p>
-        <div className="flex items-center gap-3">
-          <span className="app-header-status">4 independent evaluators</span>
+        <nav className="app-header-nav" aria-label="Primary navigation">
+          <span className="app-header-nav-item app-header-nav-item-active">Workspace</span>
+          <span className="app-header-nav-item">Candidates</span>
+          <span className="app-header-nav-item">Deliberations</span>
+        </nav>
+        <div className="app-header-actions flex items-center gap-3">
+          <span className="app-header-status">Core Infrastructure</span>
           {pipelineState === "results" && (
             <button
               type="button"
-              className="btn btn-sm btn-outline"
+              className="btn btn-sm btn-secondary"
               onClick={() => {
                 setPipelineState("upload");
                 setResults([]);
               }}
             >
-              ← New Evaluation
+              + New Evaluation
             </button>
           )}
         </div>
       </header>
 
       {pipelineState === "upload" && (
-        <UploadScreen
-          onStart={runPipeline}
-          onInstantSimulation={runInstantSimulation}
-        />
+        <UploadScreen onStart={runPipeline} onInstantSimulation={runInstantSimulation} />
       )}
-      
+
       {pipelineState === "processing" && (
         <AnalysisProcess currentStep={currentStep} completedSteps={completedSteps} />
       )}
-      
+
       {pipelineState === "results" && results.length > 0 && (
         <div className="flex flex-col gap-8 animate-fade-in">
-          {/* Candidate Switcher Navigation Bar */}
           <div className="candidate-nav-bar glass-panel flex items-center justify-between p-3">
             <div className="flex items-center gap-2 overflow-x-auto">
               <button
@@ -309,43 +312,41 @@ export default function Home() {
                 className={`btn btn-sm ${selectedCandidateId === "comparison" ? "btn-primary font-bold" : "btn-outline text-muted"}`}
                 onClick={() => setSelectedCandidateId("comparison")}
               >
-                📊 {results.length === 1 ? "Assessment" : `Comparison & Rankings (${results.length})`}
+                Comparison {results.length > 1 ? `(${results.length})` : ""}
               </button>
-              {results.map((c, i) => (
+              {results.map((candidate, index) => (
                 <button
-                  key={c.id || i}
+                  key={candidate.id || index}
                   type="button"
-                  className={`btn btn-sm ${selectedCandidateId === (c.id || c.name) ? "btn-primary font-bold" : "btn-outline text-muted"}`}
-                  onClick={() => setSelectedCandidateId(c.id || c.name)}
+                  className={`btn btn-sm ${selectedCandidateId === (candidate.id || candidate.name) ? "btn-primary font-bold" : "btn-outline text-muted"}`}
+                  onClick={() => setSelectedCandidateId(candidate.id || candidate.name)}
                 >
-                  👤 {c.name}
+                  {candidate.name}
                 </button>
               ))}
             </div>
             <span className="text-xs text-muted hidden sm:inline">
-              {results.length} {results.length === 1 ? "Candidate" : "Candidates"} Evaluated
+              {results.length} {results.length === 1 ? "candidate" : "candidates"} evaluated
             </span>
           </div>
 
-          {/* Comparison View or Specific Candidate View */}
           {selectedCandidateId === "comparison" ? (
             <div className="flex flex-col gap-8">
               <ComparisonView
                 candidates={results}
                 onSelectCandidate={(name) => setSelectedCandidateId(name)}
               />
-              
               {results.length > 1 && (
                 <div className="all-candidates-list flex flex-col gap-8">
                   <div className="section-heading">
-                    <h3 className="text-xl font-bold text-primary">Detailed Candidate Dossiers</h3>
-                    <span className="text-xs text-muted">Scroll down or use top buttons to inspect individual evaluations</span>
+                    <h3 className="text-xl font-bold text-primary">Detailed candidate dossiers</h3>
+                    <span className="text-xs text-muted">Select a candidate above to inspect the full record</span>
                   </div>
-                  {results.map((cand) => (
+                  {results.map((candidate) => (
                     <CandidateDashboard
-                      key={cand.id || cand.name}
-                      name={cand.name}
-                      data={cand}
+                      key={candidate.id || candidate.name}
+                      name={candidate.name}
+                      data={candidate}
                     />
                   ))}
                 </div>
@@ -353,10 +354,7 @@ export default function Home() {
             </div>
           ) : (
             selectedCandidate && (
-              <CandidateDashboard
-                name={selectedCandidate.name}
-                data={selectedCandidate}
-              />
+              <CandidateDashboard name={selectedCandidate.name} data={selectedCandidate} />
             )
           )}
         </div>

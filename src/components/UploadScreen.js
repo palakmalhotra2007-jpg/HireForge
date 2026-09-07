@@ -176,169 +176,130 @@ export default function UploadScreen({ onStart, onInstantSimulation }) {
   };
 
   return (
-    <div className="card upload-card animate-fade-in">
-      <div className="upload-heading">
-        <div>
-          <p className="upload-eyebrow">Evidence-Led Hiring Workspace</p>
-          <h2 className="text-xl">Candidate Evaluation & Deliberation Panel</h2>
-          <p className="text-muted">
-            Upload documents for 1 or more candidates (PDF, TXT, MD) or use preloaded sample data.
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <span className={`upload-count${isAllReady ? " upload-count-ready" : ""}`}>
-            {readyCandidatesCount}/{candidates.length} candidates ready
-          </span>
-          <span className="text-xs text-muted">{candidates.length} candidates configured</span>
-        </div>
-      </div>
-
-      {/* Quick Sample Loader Banner */}
-      <div className="sample-loader-banner glass-panel">
-        <div className="sample-loader-info">
-          <span className="sample-badge">⚡ Demo Candidates</span>
-          <div>
-            <strong>Preloaded Benchmark Candidates:</strong>
-            <p className="text-xs text-muted">
-              Rohan Malhotra (Senior AI/Backend Engineer) & Ananya Iyer (Backend → AI Engineer)
-            </p>
-          </div>
-        </div>
-        <div className="sample-loader-actions">
-          <button
-            type="button"
-            className="btn btn-sm btn-outline"
-            onClick={() => handleLoadSampleData(false)}
-          >
-            Load 2 Demo Candidates
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-outline"
-            onClick={() => handleLoadSampleData(true)}
-          >
-            Load 3 Candidates (+ Vikram)
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-6">
-        {/* Job Description */}
-        <div className="jd-section">
-          <FilePicker
-            id="job-description"
-            label="Job description"
-            description="Role requirements, technical must-haves, and success criteria"
-            file={jobDescriptionFile}
-            textContent={jobDescriptionText}
-            featured
-            onChange={e => {
-              const file = e.target.files?.[0] || null;
-              setJobDescriptionFile(file);
-              setJobDescriptionText("");
-              e.target.value = "";
-            }}
-          />
-        </div>
-
-        {/* Dynamic Candidates Grid */}
-        <div className="candidates-section">
-          <div className="section-heading">
-            <div>
-              <h3 className="text-lg text-primary">Candidate Dossiers</h3>
-              <p className="text-xs text-muted">Upload Resume and Interview Transcript for each candidate</p>
+    <div className="setup-page animate-fade-in">
+      <section className="setup-stepper" aria-label="Evaluation setup progress">
+        {[
+          ["01", "Role specification", true],
+          ["02", "Resume parsing", true],
+          ["03", "Interview transcript", false],
+          ["04", "Evaluator panel", false],
+        ].map(([number, label, complete], index) => (
+          <div className="setup-step" key={number}>
+            <div className={`setup-step-marker${complete ? " setup-step-complete" : index === 2 ? " setup-step-active" : ""}`}>
+              {complete ? "✓" : number}
             </div>
-            <button
-              type="button"
-              className="btn btn-sm btn-secondary"
-              onClick={handleAddCandidate}
-            >
-              + Add Candidate
-            </button>
+            <div>
+              <span className="setup-step-number">Step {number}</span>
+              <strong>{label}</strong>
+            </div>
+            {index < 3 && <span className="setup-step-line" aria-hidden="true" />}
           </div>
+        ))}
+      </section>
 
-          <div className={`grid gap-6 ${candidates.length >= 3 ? "grid-cols-3" : candidates.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
-            {candidates.map((cand, idx) => {
-              const isCandReady = Boolean((cand.resumeFile || cand.resumeText) && (cand.transcriptFile || cand.transcriptText));
-              return (
-                <div key={cand.id} className={`candidate-upload-panel ${isCandReady ? "candidate-ready" : ""}`}>
-                  <div className="candidate-upload-heading">
-                    <div className="flex items-center gap-2 flex-1">
-                      <input
-                        type="text"
-                        className="candidate-name-input"
-                        value={cand.name}
-                        onChange={e => handleCandidateNameChange(idx, e.target.value)}
-                        placeholder={`Candidate ${String.fromCharCode(65 + idx)} Name`}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="candidate-upload-tag">Profile 0{idx + 1}</span>
-                      {candidates.length > 1 && (
-                        <button
-                          type="button"
-                          className="btn-remove-candidate"
-                          title="Remove candidate"
-                          onClick={() => handleRemoveCandidate(idx)}
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
+      <section className="setup-intro">
+        <div className="setup-intro-meta">
+          <span>Pipeline setup · sequence 03/04</span>
+          <span className="setup-id">ID: EVAL-89241</span>
+        </div>
+        <h2>Step 3 of 4: Ingest candidate evidence</h2>
+        <p>Upload the role specification and candidate records. HireForge will reconcile the evidence before dispatching the evaluator panel.</p>
+      </section>
+
+      <section className="setup-context">
+        <div className="setup-section-label">Context envelope</div>
+        <div className="setup-context-grid">
+          <div className="setup-context-item">
+            <span className="setup-context-icon">R</span>
+            <div><strong>Role specification</strong><span>{isJdReady ? "Role requirements loaded" : "JD upload pending"}</span></div>
+          </div>
+          <div className="setup-context-item">
+            <span className="setup-context-icon">C</span>
+            <div><strong>{candidates.length} candidate dossiers</strong><span>{readyCandidatesCount} ready for evaluation</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="setup-panel">
+        <div className="setup-panel-heading">
+          <div>
+            <span className="setup-section-label">01 · Role specification</span>
+            <h3>Upload the job description</h3>
+          </div>
+          <span className={`setup-status${isJdReady ? " setup-status-ready" : ""}`}>{isJdReady ? "Ready" : "Required"}</span>
+        </div>
+        <FilePicker
+          id="job-description"
+          label="Job description"
+          description="Role requirements, technical must-haves, and success criteria"
+          file={jobDescriptionFile}
+          textContent={jobDescriptionText}
+          featured
+          onChange={e => {
+            const file = e.target.files?.[0] || null;
+            setJobDescriptionFile(file);
+            setJobDescriptionText("");
+            e.target.value = "";
+          }}
+        />
+      </section>
+
+      <section className="setup-panel">
+        <div className="setup-panel-heading">
+          <div>
+            <span className="setup-section-label">02 · Candidate records</span>
+            <h3>Resume and interview transcript</h3>
+          </div>
+          <button type="button" className="btn btn-sm btn-secondary" onClick={handleAddCandidate}>+ Add candidate</button>
+        </div>
+
+        <div className="setup-candidates">
+          {candidates.map((cand, idx) => {
+            const isCandReady = Boolean((cand.resumeFile || cand.resumeText) && (cand.transcriptFile || cand.transcriptText));
+            return (
+              <div key={cand.id} className={`candidate-upload-panel setup-candidate${isCandReady ? " candidate-ready" : ""}`}>
+                <div className="candidate-upload-heading">
+                  <div className="setup-candidate-title">
+                    <span className="setup-candidate-number">0{idx + 1}</span>
+                    <input
+                      type="text"
+                      className="candidate-name-input"
+                      value={cand.name}
+                      onChange={e => handleCandidateNameChange(idx, e.target.value)}
+                      placeholder={`Candidate ${String.fromCharCode(65 + idx)} Name`}
+                    />
                   </div>
-
-                  <div className="flex flex-col gap-4">
-                    <FilePicker
-                      id={`candidate-${idx}-resume`}
-                      label="Resume"
-                      description="Work experience & technical background"
-                      file={cand.resumeFile}
-                      textContent={cand.resumeText}
-                      onChange={e => handleCandidateFileChange(idx, "resume", e)}
-                    />
-                    <FilePicker
-                      id={`candidate-${idx}-transcript`}
-                      label="Interview transcript"
-                      description="Verbatim interview responses & Q&A"
-                      file={cand.transcriptFile}
-                      textContent={cand.transcriptText}
-                      onChange={e => handleCandidateFileChange(idx, "transcript", e)}
-                    />
+                  <div className="flex items-center gap-2">
+                    <span className={`candidate-upload-tag${isCandReady ? " setup-status-ready" : ""}`}>{isCandReady ? "Ready" : "Pending"}</span>
+                    {candidates.length > 1 && <button type="button" className="btn-remove-candidate" title="Remove candidate" onClick={() => handleRemoveCandidate(idx)}>×</button>}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                <div className="setup-file-stack">
+                  <FilePicker id={`candidate-${idx}-resume`} label="Resume" description="Work experience & technical background" file={cand.resumeFile} textContent={cand.resumeText} onChange={e => handleCandidateFileChange(idx, "resume", e)} />
+                  <FilePicker id={`candidate-${idx}-transcript`} label="Interview transcript" description="Verbatim interview responses & Q&A" file={cand.transcriptFile} textContent={cand.transcriptText} onChange={e => handleCandidateFileChange(idx, "transcript", e)} />
+                </div>
+              </div>
+            );
+          })}
         </div>
+      </section>
 
-        {/* Action Buttons */}
-        <div className="upload-actions flex gap-4">
-          <button
-            type="button"
-            className="btn btn-primary flex-1"
-            disabled={!isAllReady}
-            onClick={() => handleStartEvaluation(false)}
-          >
-            {isAllReady
-              ? `Start AI Panel Evaluation (${candidates.length} Candidates)`
-              : "Add all documents to continue"}
-          </button>
-          
-          <button
-            type="button"
-            className="btn btn-instant"
-            onClick={() => {
-              if (!jobDescriptionText && !jobDescriptionFile) {
-                handleLoadSampleData(candidates.length >= 3);
-              }
-              handleStartEvaluation(true);
-            }}
-            title="Instant multi-agent deliberation simulation with precomputed evidence"
-          >
-            ⚡ Instant Simulation
-          </button>
+      <section className="setup-demo-row">
+        <div><span className="setup-section-label">Benchmark workspace</span><strong>Preloaded sample candidates</strong><span>Use the existing benchmark records to preview the full panel.</span></div>
+        <div className="sample-loader-actions">
+          <button type="button" className="btn btn-sm btn-outline" onClick={() => handleLoadSampleData(false)}>Load 2 demos</button>
+          <button type="button" className="btn btn-sm btn-outline" onClick={() => handleLoadSampleData(true)}>Load 3 demos</button>
         </div>
-      </div>
+      </section>
+
+      <section className="setup-actions upload-actions">
+        <button type="button" className="btn btn-primary" disabled={!isAllReady} onClick={() => handleStartEvaluation(false)}>
+          {isAllReady ? `Continue to evaluator panel (${candidates.length})` : "Add all documents to continue"}
+        </button>
+        <button type="button" className="btn btn-instant" onClick={() => { if (!jobDescriptionText && !jobDescriptionFile) handleLoadSampleData(candidates.length >= 3); handleStartEvaluation(true); }} title="Instant multi-agent deliberation simulation with precomputed evidence">
+          Instant simulation
+        </button>
+      </section>
     </div>
   );
 }
